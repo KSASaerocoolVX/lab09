@@ -81,8 +81,7 @@ auto groupStats(const Elem* arr, std::size_t n, KeyFunc keyFunc, ValueFunc value
 
 
 template <typename GI>
-void printGroups(const std::vector<GI>& groups, const std::string& label) {
-    std::cout << "--- " << label << " ---\n";
+void printGroups(const std::vector<GI>& groups) {
     std::cout << "Key | Count | Min | Max | Sum | Avg\n";
     for (const auto& g : groups) {
         std::cout << g.key << " | "
@@ -95,38 +94,48 @@ void printGroups(const std::vector<GI>& groups, const std::string& label) {
     std::cout << "\n";
 }
 
+int getKeyInt(int x) {
+    return x % 10;
+}
+int getValInt(int x) {
+    return x;
+}
+
+int getKeyDouble(double x) {
+    if (x < 0) return 0;
+    if (x <= 10) return 1;
+    return 2;
+}
+double getValDouble(double x) {
+    return x;
+}
+
+char getKeyString(const std::string& s) {
+    return s.empty() ? '\0' : s[0];
+}
+std::size_t getValString(const std::string& s) {
+    return s.size();
+}
+
+
 int main() {
     int a1[] = { 12, 25, 17, 30, 41, 52, 63, 70, 99, 100 };
-    std::size_t n1 = sizeof(a1) / sizeof(a1[0]);
+    auto g1 = groupStats(a1, 10, getKeyInt, getValInt);
+    
+    std::cout << "Int groups:\n";
+    printGroups(g1);
 
-    auto g1 = groupStats(a1, n1,
-        [](int x) { return x % 10; },
-        [](int x) { return x; }
-    );
-    printGroups(g1, "Int Groups (Key: Last Digit)");
+    double a2[] = { -1.5, 0.0, 3.3, 10.0, 12.2 };
+    auto g2 = groupStats(a2, 5, getKeyDouble, getValDouble);
+    
+    std::cout << "\nDouble groups:\n";
+    printGroups(g2);
 
-
-    double a2[] = { -1.5, 0.0, 3.3, 10.0, 12.2, -5.0, 7.7, 100.0 };
-    std::size_t n2 = sizeof(a2) / sizeof(a2[0]);
-
-    auto g2 = groupStats(a2, n2,
-        [](double x) -> int {
-            if (x < 0) return 0;
-            if (x <= 10) return 1;
-            return 2;
-        },
-        [](double x) { return x; }
-    );
-    printGroups(g2, "Double Groups (Key: Interval)");
-
-    std::string a3[] = { "who", "can", "sing", "that", "string", "check", "book" };
-    std::size_t n3 = sizeof(a3) / sizeof(a3[0]);
-
-    auto g3 = groupStats(a3, n3,
-        [](const std::string& s) { return s.empty() ? '\0' : s[0]; },
-        [](const std::string& s) { return s.length(); }
-    );
-    printGroups(g3, "String Groups (Key: First Char)");
+    std::string a3[] = { "who", "can", "sing" };
+    auto g3 = groupStats(a3, 3, getKeyString, getValString);
+    
+    std::cout << "\nString groups:\n";
+    printGroups(g3);
 
     return 0;
 }
